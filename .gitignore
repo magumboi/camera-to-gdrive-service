@@ -3,5 +3,4 @@ target
 *.sh
 
 # Ignore application properties files
-*.properties
-src/main/resources/application.properties
+#src/main/resources/application.properties
