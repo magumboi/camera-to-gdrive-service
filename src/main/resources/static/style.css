@@ -60,7 +60,7 @@ body {
     box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.2);
     position: fixed;
     bottom: 30px;
-    left: calc(50% - 125px);
+    left: calc(50% - 100px); /* Centered main button */
     letter-spacing: 0.5px;
     transition: all 0.2s ease;
 }
@@ -73,7 +73,7 @@ body {
 #camera--toggle {
     position: fixed;
     bottom: 30px;
-    left: calc(50% + 110px);
+    left: calc(50% + 130px); /* Right side button */
     width: 50px;
     height: 50px;
     background-color: black;
@@ -601,16 +601,16 @@ body {
 #user--name-change {
     position: fixed;
     bottom: 30px;
-    left: calc(50% - 185px);
+    left: calc(50% - 160px); /* Left side button */
     width: 50px;
     height: 50px;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: black;
     color: white;
     font-size: 20px;
     font-family: 'Inter', sans-serif;
     font-weight: 500;
     border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    border: none;
     padding: 0;
     text-align: center;
     box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.2);
@@ -618,13 +618,145 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
 }
 
 #user--name-change:hover {
     transform: translateY(-1px);
     box-shadow: 0 6px 12px 0 rgba(0, 0, 0, 0.3);
     background-color: rgba(0, 0, 0, 0.9);
-    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Tooltip styles for buttons */
+#camera--toggle::after {
+    content: "Cambiar cámara";
+    position: absolute;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+#camera--toggle:hover::after {
+    opacity: 1;
+}
+
+#user--name-change::after {
+    content: "Cambiar nombre";
+    position: absolute;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+#user--name-change:hover::after {
+    opacity: 1;
+}
+
+/* Button animations */
+@keyframes buttonPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+#camera--trigger:active {
+    animation: buttonPulse 0.2s ease-in-out;
+}
+
+#camera--toggle:active,
+#user--name-change:active {
+    animation: buttonPulse 0.2s ease-in-out;
+}
+
+/* Improve button focus states for accessibility */
+#camera--trigger:focus,
+#camera--toggle:focus,
+#user--name-change:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* Ensure buttons work well with touch devices */
+#camera--trigger,
+#camera--toggle,
+#user--name-change {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+/* Responsive design for mobile devices */
+@media (max-width: 768px) {
+    #camera--trigger {
+        width: 180px;
+        left: calc(50% - 90px);
+        font-size: 14px;
+        padding: 12px 16px;
+    }
+    
+    #camera--toggle {
+        left: calc(50% + 110px);
+        width: 45px;
+        height: 45px;
+    }
+    
+    #user--name-change {
+        left: calc(50% - 140px);
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+    }
+    
+    #camera--toggle::before {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+    #camera--trigger {
+        width: 160px;
+        left: calc(50% - 80px);
+        font-size: 13px;
+        padding: 10px 14px;
+    }
+    
+    #camera--toggle {
+        left: calc(50% + 90px);
+        width: 40px;
+        height: 40px;
+    }
+    
+    #user--name-change {
+        left: calc(50% - 120px);
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    #camera--toggle::before {
+        width: 16px;
+        height: 16px;
+    }
 }
