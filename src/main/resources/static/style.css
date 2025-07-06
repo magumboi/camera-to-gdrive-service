@@ -597,3 +597,34 @@ body {
         padding: 0.4rem 0.8rem;
     }
 }
+
+#user--name-change {
+    position: fixed;
+    bottom: 30px;
+    left: calc(50% - 185px);
+    width: 50px;
+    height: 50px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 20px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 0;
+    text-align: center;
+    box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+#user--name-change:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px 0 rgba(0, 0, 0, 0.3);
+    background-color: rgba(0, 0, 0, 0.9);
+    border-color: rgba(255, 255, 255, 0.5);
+}

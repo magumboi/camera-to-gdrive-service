@@ -322,6 +322,122 @@ const maxGallerySize = 6; // Display limit
 const maxPersistentSize = 3; // Storage limit
 const GALLERY_STORAGE_KEY = 'cameraGallery';
 
+// User name storage
+let userName = '';
+const USER_NAME_STORAGE_KEY = 'cameraAppUserName';
+
+// Load user name from localStorage
+function loadUserName() {
+    if (!isLocalStorageAvailable()) {
+        console.warn('localStorage not available, user name will not persist');
+        return;
+    }
+
+    try {
+        const savedUserName = localStorage.getItem(USER_NAME_STORAGE_KEY);
+        if (savedUserName && savedUserName.trim() !== '') {
+            userName = savedUserName.trim();
+            console.log('Loaded user name from storage:', userName);
+        }
+    } catch (error) {
+        console.error('Error loading user name from localStorage:', error);
+    }
+}
+
+// Save user name to localStorage
+function saveUserName() {
+    if (!isLocalStorageAvailable()) {
+        console.warn('localStorage not available, user name will not persist');
+        return;
+    }
+
+    try {
+        if (userName && userName.trim() !== '') {
+            localStorage.setItem(USER_NAME_STORAGE_KEY, userName.trim());
+            console.log('Saved user name to storage:', userName);
+        }
+    } catch (error) {
+        console.error('Error saving user name to localStorage:', error);
+    }
+}
+
+// Prompt user for their name
+async function promptForUserName() {
+    const { value: name } = await Swal.fire({
+        title: 'Bienvenido',
+        text: 'Por favor ingresa tu nombre para personalizar las fotos',
+        input: 'text',
+        inputLabel: 'Tu nombre',
+        inputPlaceholder: 'Ingresa tu nombre aquí',
+        inputValue: userName, // Pre-fill with existing name if available
+        showCancelButton: false,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        inputValidator: (value) => {
+            if (!value || value.trim() === '') {
+                return 'Por favor ingresa tu nombre';
+            }
+            if (value.trim().length < 2) {
+                return 'El nombre debe tener al menos 2 caracteres';
+            }
+            if (value.trim().length > 30) {
+                return 'El nombre no puede tener más de 30 caracteres';
+            }
+            // Check for invalid characters for filenames
+            const invalidChars = /[<>:"/\\|?*]/;
+            if (invalidChars.test(value)) {
+                return 'El nombre no puede contener caracteres especiales como < > : " / \\ | ? *';
+            }
+            return null;
+        },
+        background: 'rgba(0, 0, 0, 0.9)',
+        color: '#ffffff',
+        customClass: {
+            popup: 'swal-responsive-popup',
+            title: 'swal-title-white',
+            confirmButton: 'swal-confirm-button'
+        }
+    });
+
+    if (name && name.trim() !== '') {
+        userName = name.trim();
+        saveUserName();
+        
+        // Show welcome message
+        Swal.fire({
+            title: `¡Hola, ${userName}!`,
+            text: 'Ahora tus fotos incluirán tu nombre en el archivo',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false,
+            background: 'rgba(0, 0, 0, 0.9)',
+            color: '#ffffff',
+            customClass: {
+                popup: 'swal-responsive-popup',
+                title: 'swal-title-white'
+            }
+        });
+    }
+}
+
+// Initialize user name when app loads
+async function initializeUserName() {
+    loadUserName();
+    
+    // If no user name is stored, prompt for it
+    if (!userName || userName.trim() === '') {
+        await promptForUserName();
+    }
+}
+
+// Function to change user name
+async function changeUserName() {
+    await promptForUserName();
+}
+
+// Make changeUserName available globally
+window.changeUserName = changeUserName;
+
 // Load gallery from localStorage on startup
 function loadGalleryFromStorage() {
     if (!isLocalStorageAvailable()) {
@@ -584,12 +700,15 @@ function updateMotionIndicator(motionLevel) {
 }
 
 // Start the video stream when the window loads
-window.addEventListener("load", function () {
+window.addEventListener("load", async function () {
     // Load gallery from localStorage first
     loadGalleryFromStorage();
 
     // Show storage info for debugging
     showStorageInfo();
+
+    // Initialize user name (prompt if needed)
+    await initializeUserName();
 
     // Then start the camera
     cameraStart();
@@ -851,6 +970,11 @@ async function uploadPhoto(imageDataUrl, showMessages = true) {
         const filename = `camera-photo-${timestamp}.jpg`;
 
         formData.append('file', blob, filename);
+        
+        // Include user name if available
+        if (userName && userName.trim() !== '') {
+            formData.append('userName', userName.trim());
+        }
 
         // Send to our backend endpoint
         const uploadResponse = await fetch('/api/upload-photo', {
@@ -909,11 +1033,18 @@ function downloadPhoto(imageDataUrl, timestamp) {
         const link = document.createElement('a');
         link.href = imageDataUrl;
 
-        // Generate filename with timestamp
+        // Generate filename with timestamp and user name
         const date = new Date(timestamp);
         const formattedTimestamp = date.toISOString().replace(/[:.]/g, '-').split('T')[0] + '_' +
             date.toTimeString().split(' ')[0].replace(/:/g, '-');
-        link.download = `camera-photo-${formattedTimestamp}.jpg`;
+        
+        let filename;
+        if (userName && userName.trim() !== '') {
+            filename = `${userName.trim()}-camera-photo-${formattedTimestamp}.jpg`;
+        } else {
+            filename = `camera-photo-${formattedTimestamp}.jpg`;
+        }
+        link.download = filename;
 
         // Trigger download
         document.body.appendChild(link);

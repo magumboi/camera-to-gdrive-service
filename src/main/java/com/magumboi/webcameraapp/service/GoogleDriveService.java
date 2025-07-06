@@ -78,12 +78,24 @@ public class GoogleDriveService {
         }
     }
 
-    public Mono<String> uploadPhotoToGoogleDrive(MultipartFile photo) {
+    public Mono<String> uploadPhotoToGoogleDrive(MultipartFile photo, String userName) {
         return Mono.fromFuture(CompletableFuture.supplyAsync(() -> {
             try {
                 // Generate timestamp for filename
                 String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
-                String filename = "camera-photo-" + timestamp + ".jpg";
+                
+                // Create filename with user name if provided
+                String filename;
+                if (userName != null && !userName.trim().isEmpty()) {
+                    // Sanitize userName for filename (remove invalid characters)
+                    String sanitizedUserName = userName.trim().replaceAll("[<>:\"/\\\\|?*]", "");
+                    if (sanitizedUserName.length() > 30) {
+                        sanitizedUserName = sanitizedUserName.substring(0, 30);
+                    }
+                    filename = sanitizedUserName + "-camera-photo-" + timestamp + ".jpg";
+                } else {
+                    filename = "camera-photo-" + timestamp + ".jpg";
+                }
                 
                 // Create file metadata
                 File fileMetadata = new File();
@@ -118,6 +130,11 @@ public class GoogleDriveService {
                 throw new RuntimeException("Failed to upload photo to Google Drive: " + e.getMessage(), e);
             }
         }, executor));
+    }
+
+    // Overloaded method for backward compatibility
+    public Mono<String> uploadPhotoToGoogleDrive(MultipartFile photo) {
+        return uploadPhotoToGoogleDrive(photo, null);
     }
 
     public Mono<String> getFileInfo(String fileId) {

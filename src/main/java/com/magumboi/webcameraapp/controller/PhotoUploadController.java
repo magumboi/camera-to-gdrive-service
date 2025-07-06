@@ -17,7 +17,9 @@ public class PhotoUploadController {
     private GoogleDriveService googleDriveService;
 
     @PostMapping("/upload-photo")
-    public ResponseEntity<Map<String, String>> uploadPhoto(@RequestParam(value = "file", required = false) MultipartFile file) {
+    public ResponseEntity<Map<String, String>> uploadPhoto(
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            @RequestParam(value = "userName", required = false) String userName) {
         // Validate file
         if (file == null || file.isEmpty()) {
             Map<String, String> response = new HashMap<>();
@@ -35,7 +37,7 @@ public class PhotoUploadController {
 
         // Upload to Google Drive (blocking call)
         try {
-            String fileId = googleDriveService.uploadPhotoToGoogleDrive(file).block();
+            String fileId = googleDriveService.uploadPhotoToGoogleDrive(file, userName).block();
             Map<String, String> response = new HashMap<>();
             response.put("message", "Photo uploaded successfully to Google Drive");
             response.put("fileId", fileId);
