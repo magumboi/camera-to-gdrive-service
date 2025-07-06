@@ -406,9 +406,17 @@ async function promptForUserName() {
         // Show welcome message
         Swal.fire({
             title: `¡Hola, ${userName}!`,
-            text: 'Ahora tus fotos incluirán tu nombre en el archivo',
+            html: `
+                <div style="text-align: center;">
+                    <p>Ahora tus fotos incluirán tu nombre en el archivo</p>
+                    <p style="font-size: 0.9em; color: #ccc; margin-top: 10px;">
+                        📁 Las fotos se organizarán en una carpeta llamada:<br>
+                        <strong>"${userName}-fotos"</strong>
+                    </p>
+                </div>
+            `,
             icon: 'success',
-            timer: 2000,
+            timer: 3000,
             showConfirmButton: false,
             background: 'rgba(0, 0, 0, 0.9)',
             color: '#ffffff',
@@ -987,9 +995,14 @@ async function uploadPhoto(imageDataUrl, showMessages = true) {
         if (uploadResponse.ok) {
             // Success - only show message if enabled
             if (showMessages) {
+                let successMessage = 'La foto se ha guardado exitosamente';
+                if (userName && userName.trim() !== '') {
+                    successMessage += ` en la carpeta "${userName}-fotos"`;
+                }
+                
                 Swal.fire({
                     title: '¡Foto guardada!',
-                    text: 'La foto se ha guardado exitosamente',
+                    text: successMessage,
                     icon: 'success',
                     timer: 2500,
                     showConfirmButton: false,

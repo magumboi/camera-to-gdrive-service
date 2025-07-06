@@ -86,9 +86,10 @@ public class GoogleDriveService {
                 
                 // Create filename with user name if provided
                 String filename;
+                String sanitizedUserName = null;
                 if (userName != null && !userName.trim().isEmpty()) {
                     // Sanitize userName for filename (remove invalid characters)
-                    String sanitizedUserName = userName.trim().replaceAll("[<>:\"/\\\\|?*]", "");
+                    sanitizedUserName = userName.trim().replaceAll("[<>:\"/\\\\|?*]", "");
                     if (sanitizedUserName.length() > 30) {
                         sanitizedUserName = sanitizedUserName.substring(0, 30);
                     }
@@ -97,15 +98,18 @@ public class GoogleDriveService {
                     filename = "camera-photo-" + timestamp + ".jpg";
                 }
                 
+                // Get or create user-specific folder
+                String targetFolderId = getUserFolder(sanitizedUserName);
+                
                 // Create file metadata
                 File fileMetadata = new File();
                 fileMetadata.setName(filename);
                 fileMetadata.setDescription("Photo taken from web camera at " + 
                     LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
                 
-                // Set parent folder if specified
-                if (folderId != null && !folderId.trim().isEmpty()) {
-                    fileMetadata.setParents(Collections.singletonList(folderId));
+                // Set parent folder (user's folder or main folder)
+                if (targetFolderId != null && !targetFolderId.trim().isEmpty()) {
+                    fileMetadata.setParents(Collections.singletonList(targetFolderId));
                 }
 
                 // Create file content
@@ -155,6 +159,91 @@ public class GoogleDriveService {
                 throw new RuntimeException("Failed to get file info: " + e.getMessage(), e);
             }
         }, executor));
+    }
+
+    /**
+     * Gets or creates a folder for a specific user
+     * @param userName The sanitized user name
+     * @return The folder ID for the user's folder, or the main folder ID if no user name
+     */
+    private String getUserFolder(String userName) {
+        if (userName == null || userName.trim().isEmpty()) {
+            return folderId; // Return main folder if no user name
+        }
+        
+        try {
+            // First, check if the user's folder already exists
+            String userFolderName = userName + "-fotos";
+            String existingFolderId = findFolderByName(userFolderName, folderId);
+            
+            if (existingFolderId != null) {
+                logger.debug("Found existing folder for user {}: {}", userName, existingFolderId);
+                return existingFolderId;
+            }
+            
+            // Create new folder for the user
+            String newFolderId = createUserFolder(userFolderName, folderId);
+            logger.info("Created new folder for user {}: {} (ID: {})", userName, userFolderName, newFolderId);
+            return newFolderId;
+            
+        } catch (Exception e) {
+            logger.error("Failed to get/create user folder for {}, using main folder", userName, e);
+            return folderId; // Fallback to main folder
+        }
+    }
+    
+    /**
+     * Finds a folder by name within a parent folder
+     * @param folderName The name of the folder to find
+     * @param parentFolderId The parent folder ID (null for root)
+     * @return The folder ID if found, null otherwise
+     */
+    private String findFolderByName(String folderName, String parentFolderId) throws IOException {
+        // Build query to find folder by name
+        StringBuilder query = new StringBuilder("mimeType='application/vnd.google-apps.folder' and name='" + folderName + "'");
+        
+        if (parentFolderId != null && !parentFolderId.trim().isEmpty()) {
+            query.append(" and '").append(parentFolderId).append("' in parents");
+        }
+        
+        query.append(" and trashed=false");
+        
+        // Execute search
+        var result = driveService.files().list()
+            .setQ(query.toString())
+            .setFields("files(id, name)")
+            .setPageSize(1)
+            .execute();
+        
+        var files = result.getFiles();
+        if (files != null && !files.isEmpty()) {
+            return files.get(0).getId();
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Creates a new folder for a user
+     * @param folderName The name of the folder to create
+     * @param parentFolderId The parent folder ID (null for root)
+     * @return The ID of the created folder
+     */
+    private String createUserFolder(String folderName, String parentFolderId) throws IOException {
+        File folderMetadata = new File();
+        folderMetadata.setName(folderName);
+        folderMetadata.setMimeType("application/vnd.google-apps.folder");
+        folderMetadata.setDescription("Carpeta de fotos para el usuario - creada automáticamente");
+        
+        if (parentFolderId != null && !parentFolderId.trim().isEmpty()) {
+            folderMetadata.setParents(Collections.singletonList(parentFolderId));
+        }
+        
+        File createdFolder = driveService.files().create(folderMetadata)
+            .setFields("id, name")
+            .execute();
+        
+        return createdFolder.getId();
     }
 
     public boolean isConfigured() {

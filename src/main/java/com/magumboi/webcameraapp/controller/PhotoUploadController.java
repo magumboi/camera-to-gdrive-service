@@ -41,6 +41,12 @@ public class PhotoUploadController {
             Map<String, String> response = new HashMap<>();
             response.put("message", "Photo uploaded successfully to Google Drive");
             response.put("fileId", fileId);
+            
+            // Log the upload with user information
+            if (userName != null && !userName.trim().isEmpty()) {
+                response.put("uploadedFor", userName.trim());
+            }
+            
             return ResponseEntity.ok(response);
         } catch (Exception error) {
             Map<String, String> response = new HashMap<>();
