@@ -1,66 +1,119 @@
 # Camera to Google Drive Service
 
-Este es un servicio Spring Boot que permite capturar fotos desde una cámara web y subirlas automáticamente a Google Drive.
+This is a Spring Boot service that allows capturing photos from a web camera and automatically uploading them to Google Drive with user-based organization.
 
-## Configuración de Google Drive
+## 🚀 Key Features
 
-### 1. Crear un Proyecto en Google Cloud Console
+- **Web camera photo capture**: Modern and responsive interface
+- **Automatic user organization**: Each user has their own folder
+- **Name personalization**: Files include the user's name
+- **Photo gallery**: View the latest photos taken
+- **Motion detection**: Prevents blurry photos
+- **Photo download**: Option to download photos locally
+- **Multi-language interface**: Spanish support
+- **Responsive design**: Works on mobile and desktop
 
-1. Ve a [Google Cloud Console](https://console.cloud.google.com/)
-2. Crea un nuevo proyecto o selecciona uno existente
-3. Habilita la API de Google Drive:
-   - Ve a "APIs y servicios" > "Biblioteca"
-   - Busca "Google Drive API"
-   - Haz clic en "Habilitar"
+## 📁 File Organization
 
-### 2. Crear una Cuenta de Servicio
+The system automatically organizes photos as follows:
 
-1. Ve a "APIs y servicios" > "Credenciales"
-2. Haz clic en "Crear credenciales" > "Cuenta de servicio"
-3. Proporciona un nombre y descripción para la cuenta de servicio
-4. Asigna el rol "Editor" o "Propietario" (o un rol personalizado con permisos de Drive)
-5. Haz clic en "Crear"
+```
+Google Drive/
+├── Juan-fotos/
+│   ├── Juan-camera-photo-2025-07-06_14-30-45.jpg
+│   ├── Juan-camera-photo-2025-07-06_14-35-22.jpg
+│   └── Juan-camera-photo-2025-07-06_14-40-15.jpg
+├── Maria-fotos/
+│   ├── Maria-camera-photo-2025-07-06_15-10-30.jpg
+│   └── Maria-camera-photo-2025-07-06_15-15-45.jpg
+└── Pedro-fotos/
+    └── Pedro-camera-photo-2025-07-06_16-00-12.jpg
+```
 
-### 3. Descargar las Credenciales
+## 👤 User System
 
-1. En la página de credenciales, busca tu cuenta de servicio
-2. Haz clic en el ícono de lápiz para editarla
-3. Ve a la pestaña "Claves"
-4. Haz clic en "Agregar clave" > "Crear nueva clave"
-5. Selecciona "JSON" y descarga el archivo
-6. Guarda el archivo como `service-account-key.json` en `src/main/resources/`
+### First Use
+1. When opening the application, the user's name is requested
+2. The name is validated (2-30 characters, no special characters)
+3. A folder `{UserName}-fotos` is automatically created in Google Drive
+4. The name is saved locally for future sessions
 
-### 4. Configurar la Carpeta de Google Drive (Opcional)
+### User Features
+- **Name change**: 👤 button to change the name at any time
+- **Persistence**: Name is maintained between sessions
+- **Validation**: Safe names for use in file names
+- **Visual feedback**: Informative messages about where photos are saved
 
-Si quieres que las fotos se suban a una carpeta específica:
+## Google Drive Configuration
 
-1. Crea una carpeta en tu Google Drive
-2. Haz clic derecho en la carpeta y selecciona "Compartir"
-3. Comparte la carpeta con el email de la cuenta de servicio (está en el archivo JSON)
-4. Copia el ID de la carpeta desde la URL (la parte después de `/folders/`)
-5. Agrega el ID a `application.properties`:
+### 1. Create a Project in Google Cloud Console
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Enable the Google Drive API:
+   - Go to "APIs & Services" > "Library"
+   - Search for "Google Drive API"
+   - Click "Enable"
+
+### 2. Create a Service Account
+
+1. Go to "APIs & Services" > "Credentials"
+2. Click "Create credentials" > "Service account"
+3. Provide a name and description for the service account
+4. Assign the "Editor" or "Owner" role (or a custom role with Drive permissions)
+5. Click "Create"
+
+### 3. Download Credentials
+
+1. On the credentials page, find your service account
+2. Click the pencil icon to edit it
+3. Go to the "Keys" tab
+4. Click "Add key" > "Create new key"
+5. Select "JSON" and download the file
+6. Save the file as `service-account-key.json` in `src/main/resources/`
+
+### 4. Configure Google Drive Folder (Optional)
+
+If you want photos to be uploaded to a specific folder:
+
+1. Create a folder in your Google Drive
+2. Right-click the folder and select "Share"
+3. Share the folder with the service account email (found in the JSON file)
+4. Copy the folder ID from the URL (the part after `/folders/`)
+5. Add the ID to `application.properties`:
    ```properties
-   google.drive.folder.id=TU_FOLDER_ID_AQUI
+   google.drive.folder.id=YOUR_FOLDER_ID_HERE
    ```
 
-## Configuración del Aplicativo
+## Application Configuration
 
-### Archivo application.properties
+### application.properties File
 
 ```properties
-# Configuración de Google Drive
+# Google Drive Configuration
 google.drive.credentials.path=src/main/resources/service-account-key.json
 google.drive.folder.id=
 
-# Configuración de logging
+# Logging Configuration
 logging.level.web=DEBUG
 ```
 
-### Dependencias Maven
+### Maven Dependencies
 
-El proyecto incluye las siguientes dependencias para Google Drive:
+The project includes the following main dependencies:
 
 ```xml
+<!-- Spring Boot Dependencies -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+</dependency>
+
+<!-- Google Drive API -->
 <dependency>
     <groupId>com.google.apis</groupId>
     <artifactId>google-api-services-drive</artifactId>
@@ -76,60 +129,207 @@ El proyecto incluye las siguientes dependencias para Google Drive:
     <artifactId>google-http-client-jackson2</artifactId>
     <version>1.43.3</version>
 </dependency>
+
+<!-- Reactive Programming -->
+<dependency>
+    <groupId>io.projectreactor</groupId>
+    <artifactId>reactor-core</artifactId>
+</dependency>
 ```
 
-## Ejecución
+## 🏗️ System Architecture
 
-1. Instala las dependencias:
+### Backend (Spring Boot)
+- **PhotoUploadController**: Handles photo upload requests
+- **GoogleDriveService**: Manages interaction with Google Drive API
+  - Automatic creation of user folders
+  - File upload with personalized names
+  - Error handling and fallbacks
+- **Reactive configuration**: Uses Project Reactor for asynchronous operations
+
+### Frontend (Vanilla JavaScript)
+- **Camera management**: WebRTC API for camera access
+- **Motion detection**: Frame analysis algorithm
+- **User management**: LocalStorage for name persistence
+- **Photo gallery**: Temporary local storage system
+- **Responsive UI**: CSS Grid and Flexbox for adaptability
+
+### Data Flow
+1. **Initialization**: User enters name → Validation → Local storage
+2. **Capture**: Motion detection → Photo capture → Blob conversion
+3. **Upload**: FormData with photo and user → Backend → Google Drive API
+4. **Organization**: Folder search/creation → Upload with personalized name
+5. **Confirmation**: Server response → User message
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Java 11 or higher
+- Maven 3.6 or higher
+- Modern web browser with WebRTC support
+- Google Cloud account with Google Drive API access
+
+### Quick Installation
+
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd camera-to-gdrive-service
+   ```
+
+2. **Configure Google Drive** (follow the detailed configuration section below)
+
+3. **Install dependencies**:
    ```bash
    mvn clean install
    ```
 
-2. Ejecuta la aplicación:
+4. **Run the application**:
    ```bash
    mvn spring-boot:run
    ```
 
-3. Abre tu navegador y ve a `http://localhost:8080`
+5. **Open in browser**:
+   ```
+   http://localhost:8080
+   ```
 
-## Endpoints de la API
+### First Execution
+1. Enter your name when prompted
+2. Allow camera access when the browser requests it
+3. Take your first photo!
+4. The photo will be automatically saved to Google Drive in your personal folder
 
-### Subir Foto
+## Running the Application
+
+1. Install dependencies:
+   ```bash
+   mvn clean install
+   ```
+
+2. Run the application:
+   ```bash
+   mvn spring-boot:run
+   ```
+
+3. Open your browser and go to `http://localhost:8080`
+
+## API Endpoints
+
+### Upload Photo
 - **POST** `/api/upload-photo`
-- Parámetros: `file` (MultipartFile)
-- Respuesta: JSON con el ID del archivo subido
+- **Parameters**: 
+  - `file` (MultipartFile) - Required image file
+  - `userName` (String) - User name (optional)
+- **Response**: JSON with uploaded file ID and user information
+- **Example response**:
+  ```json
+  {
+    "message": "Photo uploaded successfully to Google Drive",
+    "fileId": "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms",
+    "uploadedFor": "Juan"
+  }
+  ```
 
-### Estado de Google Drive
+### Google Drive Status
 - **GET** `/api/drive-status`
-- Respuesta: JSON con el estado de la configuración
+- **Response**: JSON with configuration status
+- **Example response**:
+  ```json
+  {
+    "configured": true,
+    "folderId": "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms",
+    "service": "Google Drive"
+  }
+  ```
 
-## Funcionalidades
+## 🎯 Interface Features
 
-- **Captura de fotos**: Interfaz web para tomar fotos con la cámara
-- **Detección de movimiento**: Captura automática cuando detecta movimiento
-- **Subida automática**: Las fotos se suben automáticamente a Google Drive
-- **Validación de archivos**: Solo acepta imágenes
-- **Gestión de errores**: Manejo robusto de errores con mensajes informativos
+### Camera Controls
+- **📷 Take photo**: Main centered button to capture photos
+- **🔄 Switch camera**: Toggle between front and rear camera
+- **👤 Change name**: Allows modifying the user's name
 
-## Seguridad
+### Advanced Features
+- **Motion detection**: Warns if there's too much movement before taking a photo
+- **Tap to focus**: Touch the screen to focus the camera
+- **Integrated gallery**: View the latest photos taken
+- **Local download**: Option to download photos to device
+- **Optional upload**: Choose whether to upload photos automatically or manually
 
-- Las credenciales de la cuenta de servicio deben mantenerse seguras
-- No subas el archivo `service-account-key.json` a repositorios públicos
-- Considera usar variables de entorno para la configuración en producción
+### System Messages
+- **Personalized welcome**: Greeting with the user's name
+- **Upload confirmation**: Indicates which folder the photo was saved to
+- **Error handling**: Clear messages for any problems
+
+## Security
+
+- Service account credentials must be kept secure
+- Do not upload the `service-account-key.json` file to public repositories
+- Consider using environment variables for production configuration
 
 ## Troubleshooting
 
-### Error "Google Drive no configurado"
-- Verifica que el archivo `service-account-key.json` existe
-- Asegúrate de que la ruta en `application.properties` es correcta
-- Revisa que la cuenta de servicio tiene permisos
+### Error "Google Drive not configured"
+- Verify that the `service-account-key.json` file exists
+- Make sure the path in `application.properties` is correct
+- Check that the service account has permissions
 
 ### Error "Failed to upload photo"
-- Verifica que la API de Google Drive está habilitada
-- Asegúrate de que la cuenta de servicio tiene permisos de escritura
-- Si usas una carpeta específica, verifica que está compartida con la cuenta de servicio
+- Verify that the Google Drive API is enabled
+- Make sure the service account has write permissions
+- If using a specific folder, verify it's shared with the service account
 
-### Archivos no aparecen en Drive
-- Las fotos se suben a "Mi Drive" si no se especifica una carpeta
-- Si especificaste una carpeta, verifica el ID en la configuración
-- Revisa que la carpeta está compartida con la cuenta de servicio
+### Files don't appear in Drive
+- Photos are uploaded to "My Drive" if no folder is specified
+- If you specified a folder, verify the ID in the configuration
+- Check that the folder is shared with the service account
+
+### Problems with user names
+- Names are automatically validated to avoid invalid characters
+- If a name causes problems, photos are saved to the main folder
+- Special characters are automatically removed from folder names
+
+### User folder permission problems
+- User folders are created automatically
+- If creation fails, photos are saved to the configured main folder
+- Verify that the service account has permissions to create folders
+
+## 🔧 Advanced Configuration
+
+### Environment Variables for Production
+```bash
+export GOOGLE_DRIVE_CREDENTIALS_PATH=/path/to/credentials.json
+export GOOGLE_DRIVE_FOLDER_ID=your_folder_id
+export GOOGLE_DRIVE_ENABLED=true
+```
+
+### Logging Configuration
+```properties
+# For detailed debugging
+logging.level.com.magumboi.webcameraapp=DEBUG
+logging.level.com.google.api=INFO
+
+# For production
+logging.level.root=WARN
+logging.level.com.magumboi.webcameraapp=INFO
+```
+
+## 📱 Device Support
+
+- **Desktop**: Chrome, Firefox, Safari, Edge
+- **Mobile**: Chrome Mobile, Safari Mobile
+- **Tablets**: Adapted responsive interface
+- **Orientation**: Support for both vertical and horizontal
+
+## 🔒 Security Considerations
+
+- Service account credentials must be kept secure
+- Do not upload the `service-account-key.json` file to public repositories
+- User names are automatically sanitized
+- Consider using HTTPS in production
+- Implement rate limiting if necessary
+
+## 📄 License
+
+This project is under the license specified in the LICENSE file.
