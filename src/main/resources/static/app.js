@@ -819,14 +819,14 @@ cameraOutput.addEventListener('click', function () {
     }
 });
 
-// Function to upload photo to Google Drive
+// Function to upload photo
 async function uploadPhoto(imageDataUrl, showMessages = true) {
     try {
         // Show loading indicator only if messages are enabled
         if (showMessages) {
             Swal.fire({
-                title: 'Subiendo foto a Google Drive...',
-                text: 'Por favor espera mientras se sube la foto',
+                title: 'Subiendo foto...',
+                text: 'Por favor espera mientras se procesa la foto',
                 allowOutsideClick: false,
                 showConfirmButton: false,
                 background: 'rgba(0, 0, 0, 0.9)',
@@ -852,7 +852,7 @@ async function uploadPhoto(imageDataUrl, showMessages = true) {
 
         formData.append('file', blob, filename);
 
-        // Send to our backend endpoint to upload to Google Drive
+        // Send to our backend endpoint
         const uploadResponse = await fetch('/api/upload-photo', {
             method: 'POST',
             body: formData
@@ -864,10 +864,10 @@ async function uploadPhoto(imageDataUrl, showMessages = true) {
             // Success - only show message if enabled
             if (showMessages) {
                 Swal.fire({
-                    title: '¡Foto subida a Google Drive!',
-                    text: `La foto se ha subido exitosamente${result.fileId ? ' (ID: ' + result.fileId + ')' : ''}`,
+                    title: '¡Foto guardada!',
+                    text: 'La foto se ha guardado exitosamente',
                     icon: 'success',
-                    timer: 3000,
+                    timer: 2500,
                     showConfirmButton: false,
                     background: 'rgba(0, 0, 0, 0.9)',
                     color: '#ffffff',
@@ -881,13 +881,13 @@ async function uploadPhoto(imageDataUrl, showMessages = true) {
             throw new Error(result.error || `Upload API error: ${uploadResponse.status}`);
         }
     } catch (error) {
-        console.error('Error uploading photo to Google Drive:', error);
+        console.error('Error uploading photo:', error);
 
         // Show error message only if enabled
         if (showMessages) {
             Swal.fire({
-                title: 'Error al subir a Google Drive',
-                text: 'No se pudo subir la foto. Verifica la configuración de Google Drive en el servidor.',
+                title: 'Error al guardar',
+                text: 'No se pudo guardar la foto. Verifica la configuración del servidor.',
                 icon: 'error',
                 confirmButtonText: 'Entendido',
                 background: 'rgba(0, 0, 0, 0.9)',
