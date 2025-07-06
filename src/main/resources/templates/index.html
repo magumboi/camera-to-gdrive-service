@@ -1,0 +1,44 @@
+<html lang=”en”>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="x-ua-compatible" content="ie=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no">
+
+		<!-- Name of the app -->
+		<title>Camera App</title>
+
+		<!-- Link to main style sheet -->
+		<link rel="stylesheet" th:href="@{style.css}" type="text/css">
+	</head>
+	<body>
+
+		<!-- Camera -->
+		<main id="camera">
+			<div>
+
+                <!-- Camera sensor -->
+                <canvas id="camera--sensor" ></canvas>
+
+                <!-- Camera view -->
+                <video id="camera--view" width="30%" height="30%" autoplay playsinline></video>
+
+                <!-- Camera output -->
+                <img src="//:0" alt="" id="camera--output">
+
+                <!-- Camera trigger -->
+                <button id="camera--trigger">Tomar foto</button>
+
+				<button id="camera--toggle" aria-label="Cambiar cámara"></button>
+
+			</div>
+
+		</main>
+
+		<!-- Reference to your JavaScript file -->
+		 
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+		<script src="app.js"></script>
+
+	</body>
+</html>
