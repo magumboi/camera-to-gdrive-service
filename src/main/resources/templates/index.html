@@ -25,13 +25,17 @@
                 <!-- Camera output -->
                 <img src="//:0" alt="" id="camera--output">
 
-                <!-- Camera trigger -->
-                <button id="camera--trigger">Tomar foto</button>
-
-				<button id="camera--toggle" aria-label="Cambiar cámara"></button>
-
-				<!-- User name change button -->
-				<button id="user--name-change" aria-label="Cambiar nombre" onclick="changeUserName()">👤</button>
+                <!-- Button container for organized layout -->
+                <div class="button-container">
+                    <!-- User name change button - left -->
+                    <button id="user--name-change" aria-label="Cambiar nombre" onclick="changeUserName()">👤</button>
+                    
+                    <!-- Camera trigger - center -->
+                    <button id="camera--trigger">Tomar foto</button>
+                    
+                    <!-- Camera toggle - right -->
+                    <button id="camera--toggle" aria-label="Cambiar cámara"></button>
+                </div>
 
 			</div>
 

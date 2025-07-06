@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Button Layout Test</title>
+    <style>
+        /* Import Google Font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+
+        /* Button layout container */
+        .button-container {
+            position: fixed;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            max-width: 500px;
+            margin: 0 auto;
+            z-index: 1000;
+            background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.1) 100%);
+            backdrop-filter: blur(5px);
+            border-radius: 50px;
+        }
+
+        /* User name button - left side */
+        #user--name-change {
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(135deg, #000000, #1a1a1a);
+            color: white;
+            font-size: 26px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 0;
+            text-align: center;
+            box-shadow: 0 8px 20px 0 rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 100;
+            cursor: pointer;
+        }
+
+        #user--name-change:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px 0 rgba(0, 0, 0, 0.5);
+            background: linear-gradient(135deg, #1a1a1a, #000000);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        #user--name-change:active {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        /* Main photo button - centered */
+        #camera--trigger {
+            width: 240px;
+            background: linear-gradient(135deg, #000000, #1a1a1a);
+            color: white;
+            font-size: 18px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            border-radius: 35px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 20px 28px;
+            text-align: center;
+            box-shadow: 0 8px 20px 0 rgba(0, 0, 0, 0.4);
+            letter-spacing: 0.8px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 100;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        #camera--trigger:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px 0 rgba(0, 0, 0, 0.5);
+            background: linear-gradient(135deg, #1a1a1a, #000000);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        #camera--trigger:active {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        /* Camera toggle button - right side */
+        #camera--toggle {
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(135deg, #000000, #1a1a1a);
+            color: white;
+            font-size: 20px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 0;
+            text-align: center;
+            box-shadow: 0 8px 20px 0 rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 100;
+            cursor: pointer;
+        }
+
+        #camera--toggle:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px 0 rgba(0, 0, 0, 0.5);
+            background: linear-gradient(135deg, #1a1a1a, #000000);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        #camera--toggle:active {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        #camera--toggle::before {
+            content: "";
+            width: 24px;
+            height: 24px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 13c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z'/%3E%3Cpath d='M12 8.5c-1.93 0-3.5 1.57-3.5 3.5s1.57 3.5 3.5 3.5 3.5-1.57 3.5-3.5-1.57-3.5-3.5-3.5zm0 5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z'/%3E%3Cpath d='M17.5 6.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5z'/%3E%3Cpath d='M16 6.5l2-2 2 2'/%3E%3Cpath d='M8 17.5l-2 2-2-2'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            filter: brightness(1);
+            transition: all 0.3s ease;
+        }
+
+        #camera--toggle:hover::before {
+            filter: brightness(1.3);
+            transform: rotate(180deg);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .button-container {
+                bottom: 20px;
+                padding: 12px 20px;
+                max-width: 450px;
+            }
+            
+            #camera--trigger {
+                width: 210px;
+                font-size: 16px;
+                padding: 18px 22px;
+                border-radius: 30px;
+            }
+            
+            #camera--toggle {
+                width: 60px;
+                height: 60px;
+            }
+            
+            #user--name-change {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .button-container {
+                bottom: 15px;
+                padding: 10px 15px;
+                max-width: 400px;
+            }
+            
+            #camera--trigger {
+                width: 190px;
+                font-size: 14px;
+                padding: 16px 20px;
+                border-radius: 28px;
+            }
+            
+            #camera--toggle {
+                width: 55px;
+                height: 55px;
+            }
+            
+            #user--name-change {
+                width: 55px;
+                height: 55px;
+                font-size: 22px;
+            }
+        }
+
+        @media (max-width: 320px) and (orientation: portrait) {
+            .button-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+                bottom: 20px;
+                padding: 15px 10px;
+                max-width: 280px;
+                background: linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0%, transparent 100%);
+                border-radius: 25px;
+            }
+            
+            #camera--trigger {
+                width: 170px;
+                font-size: 13px;
+                padding: 14px 18px;
+                order: 2;
+            }
+            
+            #camera--toggle {
+                width: 50px;
+                height: 50px;
+                order: 3;
+            }
+            
+            #user--name-change {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+                order: 1;
+            }
+        }
+
+        /* Demo info */
+        .demo-info {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .demo-instructions {
+            position: fixed;
+            top: 60px;
+            left: 20px;
+            right: 20px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-info">Button Layout Test</div>
+    <div class="demo-instructions">Left: User • Center: Photo • Right: Camera Toggle</div>
+    
+    <div class="button-container">
+        <button id="user--name-change" aria-label="Change user name">👤</button>
+        <button id="camera--trigger">Take Photo</button>
+        <button id="camera--toggle" aria-label="Toggle camera"></button>
+    </div>
+
+    <script>
+        // Add click events for demo purposes
+        document.getElementById('user--name-change').addEventListener('click', function() {
+            alert('User name change clicked!');
+        });
+
+        document.getElementById('camera--trigger').addEventListener('click', function() {
+            alert('Take photo clicked!');
+        });
+
+        document.getElementById('camera--toggle').addEventListener('click', function() {
+            alert('Camera toggle clicked!');
+        });
+    </script>
+</body>
+</html>
