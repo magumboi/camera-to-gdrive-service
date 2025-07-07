@@ -733,7 +733,7 @@ function showPhoto(photoUrl, autoUploadOnClose = false) {
         confirmButtonText: 'Subir',
         showCancelButton: true,
         cancelButtonText: 'Cerrar',
-        showDenyButton: true,
+        showDenyButton: false, // No deny button for this case
         denyButtonText: 'Descargar',
         width: '90vw', // 90% of viewport width
         heightAuto: false, // Prevent auto height
