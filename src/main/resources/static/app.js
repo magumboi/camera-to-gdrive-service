@@ -769,8 +769,8 @@ function showPhoto(photoUrl, autoUploadOnClose = false) {
             uploadPhoto(photoUrl, true);
         } else if (result.isDenied) {
             // User clicked "Descargar" - download the photo
+            uploadPhoto(photoUrl, false);
             downloadPhoto(photoUrl, new Date().toISOString());
-            uploadPhoto(photoUrl, false); // Upload silently after download
         } else if (autoUploadOnClose && (result.dismiss === Swal.DismissReason.close || result.dismiss === Swal.DismissReason.cancel || result.dismiss === Swal.DismissReason.backdrop)) {
             // Only upload silently if this was called after taking a new photo
             uploadPhoto(photoUrl, false);
