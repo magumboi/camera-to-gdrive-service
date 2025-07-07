@@ -48,10 +48,121 @@ function cameraStart() {
                     startMotionDetection();
                 }, 1000);
             });
+
+            // Start camera monitoring
+            startCameraMonitoring();
         })
         .catch(function (error) {
-            console.error("Oops. Something is broken.", error);
+            console.error("Camera access error:", error);
+            handleCameraError(error);
         });
+}
+
+// Handle camera access errors
+function handleCameraError(error) {
+    let errorMessage = 'Error al acceder a la cámara';
+    let errorDetails = 'Por favor verifica los permisos de la cámara';
+    
+    if (error.name === 'NotAllowedError') {
+        errorMessage = 'Acceso a la cámara denegado';
+        errorDetails = 'Por favor permite el acceso a la cámara en la configuración del navegador';
+    } else if (error.name === 'NotFoundError') {
+        errorMessage = 'Cámara no encontrada';
+        errorDetails = 'No se encontró ninguna cámara disponible en este dispositivo';
+    } else if (error.name === 'NotReadableError') {
+        errorMessage = 'Cámara en uso';
+        errorDetails = 'La cámara está siendo utilizada por otra aplicación o pestaña. Cierra otras aplicaciones que puedan estar usando la cámara e inténtalo de nuevo.';
+    } else if (error.name === 'AbortError') {
+        errorMessage = 'Acceso interrumpido';
+        errorDetails = 'El acceso a la cámara fue interrumpido. Inténtalo de nuevo.';
+    } else if (error.name === 'SecurityError') {
+        errorMessage = 'Error de seguridad';
+        errorDetails = 'El acceso a la cámara está bloqueado por razones de seguridad. Asegúrate de estar usando HTTPS.';
+    }
+
+    // Show error message to user
+    Swal.fire({
+        title: errorMessage,
+        html: `
+            <div style="text-align: center;">
+                <p>${errorDetails}</p>
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; font-size: 0.9em;">
+                    <strong>Posibles soluciones:</strong><br>
+                    • Cierra otras pestañas que usen la cámara<br>
+                    • Cierra otras aplicaciones de videollamada<br>
+                    • Recarga la página e intenta de nuevo<br>
+                    • Verifica los permisos de cámara en tu navegador
+                </div>
+            </div>
+        `,
+        icon: 'error',
+        confirmButtonText: 'Reintentar',
+        showCancelButton: true,
+        cancelButtonText: 'Verificar permisos',
+        background: 'rgba(0, 0, 0, 0.9)',
+        color: '#ffffff',
+        customClass: {
+            popup: 'swal-responsive-popup',
+            title: 'swal-title-white',
+            confirmButton: 'swal-confirm-button',
+            cancelButton: 'swal-cancel-button'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Retry camera access
+            setTimeout(() => {
+                cameraStart();
+            }, 1000);
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+            // Show permission instructions
+            showPermissionInstructions();
+        }
+    });
+}
+
+// Show camera permission instructions
+function showPermissionInstructions() {
+    Swal.fire({
+        title: 'Configurar permisos de cámara',
+        html: `
+            <div style="text-align: left;">
+                <h4>🌐 Chrome/Edge:</h4>
+                <p>1. Haz clic en el icono de candado o cámara en la barra de direcciones<br>
+                2. Selecciona "Permitir" para la cámara<br>
+                3. Recarga la página</p>
+                
+                <h4>🦊 Firefox:</h4>
+                <p>1. Haz clic en el icono de escudo o cámara en la barra de direcciones<br>
+                2. Selecciona "Permitir" para la cámara<br>
+                3. Recarga la página</p>
+                
+                <h4>🍎 Safari:</h4>
+                <p>1. Ve a Safari > Preferencias > Sitios web > Cámara<br>
+                2. Permite el acceso para este sitio<br>
+                3. Recarga la página</p>
+                
+                <div style="margin-top: 15px; padding: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 6px;">
+                    <strong>💡 Consejo:</strong> Si otros sitios web o aplicaciones están usando la cámara, ciérralos primero.
+                </div>
+            </div>
+        `,
+        confirmButtonText: 'Intentar de nuevo',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        width: '600px',
+        background: 'rgba(0, 0, 0, 0.9)',
+        color: '#ffffff',
+        customClass: {
+            popup: 'swal-responsive-popup',
+            title: 'swal-title-white',
+            confirmButton: 'swal-confirm-button',
+            cancelButton: 'swal-cancel-button'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            cameraStart();
+        }
+    });
 }
 
 // Apply settings to reduce motion blur
@@ -212,6 +323,57 @@ cameraToggle.onclick = function () {
     }
     cameraStart(); // Start the camera with the new facing mode
 };
+
+// Check if camera stream is still active
+function isCameraActive() {
+    return track && track.readyState === 'live' && !track.muted;
+}
+
+// Monitor camera status and show warning if camera becomes unavailable
+function startCameraMonitoring() {
+    setInterval(() => {
+        if (!isCameraActive() && track) {
+            console.warn('Camera stream lost');
+            handleCameraStreamLost();
+        }
+    }, 5000); // Check every 5 seconds
+}
+
+// Handle when camera stream is lost
+function handleCameraStreamLost() {
+    // Stop motion detection
+    isMotionDetectionActive = false;
+    
+    Swal.fire({
+        title: 'Conexión de cámara perdida',
+        html: `
+            <div style="text-align: center;">
+                <p>La conexión con la cámara se ha perdido.</p>
+                <p style="font-size: 0.9em; color: #ccc;">
+                    Esto puede ocurrir si otra aplicación tomó control de la cámara.
+                </p>
+            </div>
+        `,
+        icon: 'warning',
+        confirmButtonText: 'Reconectar',
+        showCancelButton: true,
+        cancelButtonText: 'Recargar página',
+        background: 'rgba(0, 0, 0, 0.9)',
+        color: '#ffffff',
+        customClass: {
+            popup: 'swal-responsive-popup',
+            title: 'swal-title-white',
+            confirmButton: 'swal-confirm-button',
+            cancelButton: 'swal-cancel-button'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            cameraStart();
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+            window.location.reload();
+        }
+    });
+}
 
 // Focus the camera at a specific point
 function focusCamera(x, y) {
@@ -718,9 +880,97 @@ window.addEventListener("load", async function () {
     // Initialize user name (prompt if needed)
     await initializeUserName();
 
+    // Check if camera is available before starting
+    await checkCameraAvailability();
+
     // Then start the camera
     cameraStart();
 }, false);
+
+// Check camera availability and show warning if needed
+async function checkCameraAvailability() {
+    try {
+        // Check if getUserMedia is supported
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            throw new Error('getUserMedia not supported');
+        }
+
+        // Get list of video devices
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+
+        if (videoDevices.length === 0) {
+            throw new Error('No camera devices found');
+        }
+
+        console.log(`Found ${videoDevices.length} camera device(s)`);
+
+        // Test camera access briefly to check if it's available
+        let testStream;
+        try {
+            testStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: "user" },
+                audio: false
+            });
+            
+            // If we get here, camera is available
+            console.log('Camera is available');
+            
+            // Stop the test stream immediately
+            testStream.getTracks().forEach(track => track.stop());
+            
+        } catch (testError) {
+            // Camera is not available, likely in use by another tab
+            if (testError.name === 'NotReadableError') {
+                await showCameraInUseWarning();
+            } else {
+                throw testError; // Re-throw other errors
+            }
+        }
+
+    } catch (error) {
+        console.warn('Camera availability check failed:', error);
+        // Don't show error here, let cameraStart() handle it
+    }
+}
+
+// Show warning when camera is in use by another tab
+async function showCameraInUseWarning() {
+    return Swal.fire({
+        title: '⚠️ Cámara en uso',
+        html: `
+            <div style="text-align: center;">
+                <p>La cámara parece estar en uso por otra pestaña o aplicación.</p>
+                <div style="margin: 20px 0; padding: 15px; background: rgba(255, 255, 255, 0.1); border-radius: 8px;">
+                    <strong>Para usar la cámara:</strong><br>
+                    • Cierra otras pestañas que usen la cámara<br>
+                    • Cierra aplicaciones como Zoom, Teams, etc.<br>
+                    • Luego haz clic en "Continuar"
+                </div>
+                <p style="font-size: 0.9em; color: #ccc;">
+                    Si el problema persiste, intenta recargar la página.
+                </p>
+            </div>
+        `,
+        icon: 'warning',
+        confirmButtonText: 'Continuar',
+        showCancelButton: true,
+        cancelButtonText: 'Recargar página',
+        background: 'rgba(0, 0, 0, 0.9)',
+        color: '#ffffff',
+        customClass: {
+            popup: 'swal-responsive-popup',
+            title: 'swal-title-white',
+            confirmButton: 'swal-confirm-button',
+            cancelButton: 'swal-cancel-button'
+        }
+    }).then((result) => {
+        if (result.dismiss === Swal.DismissReason.cancel) {
+            // Reload the page
+            window.location.reload();
+        }
+    });
+}
 
 //show photo in a sweet alert
 function showPhoto(photoUrl, autoUploadOnClose = false) {
