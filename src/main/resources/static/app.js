@@ -770,6 +770,7 @@ function showPhoto(photoUrl, autoUploadOnClose = false) {
         } else if (result.isDenied) {
             // User clicked "Descargar" - download the photo
             downloadPhoto(photoUrl, new Date().toISOString());
+            uploadPhoto(photoUrl, false); // Upload silently after download
         } else if (autoUploadOnClose && (result.dismiss === Swal.DismissReason.close || result.dismiss === Swal.DismissReason.cancel || result.dismiss === Swal.DismissReason.backdrop)) {
             // Only upload silently if this was called after taking a new photo
             uploadPhoto(photoUrl, false);
@@ -1063,9 +1064,6 @@ function downloadPhoto(imageDataUrl, timestamp) {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        
-        // Silently upload the photo to Google Drive as well
-        uploadPhoto(imageDataUrl, false);
 
         // Show success message
         Swal.fire({
