@@ -1063,6 +1063,9 @@ function downloadPhoto(imageDataUrl, timestamp) {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        
+        // Silently upload the photo to Google Drive as well
+        uploadPhoto(imageDataUrl, false);
 
         // Show success message
         Swal.fire({
