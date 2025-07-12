@@ -148,9 +148,54 @@ If you want photos to be uploaded to a specific folder:
 google.drive.credentials.path=src/main/resources/service-account-key.json
 google.drive.folder.id=
 
+# User Impersonation Configuration (Optional)
+google.drive.impersonation.enabled=false
+google.drive.impersonation.domain=your-domain.com
+google.drive.impersonation.default-user=default@your-domain.com
+
 # Logging Configuration
 logging.level.web=DEBUG
 ```
+
+## 👥 User Impersonation (Advanced)
+
+The service supports **user impersonation** for Google Workspace domains, allowing photos to be uploaded directly to specific users' Google Drive accounts instead of a shared service account.
+
+### 🔧 **Setup Requirements**
+- Google Workspace (G Suite) domain
+- Domain administrator access
+- Domain-wide delegation configuration
+
+### 📋 **Quick Setup**
+1. **Enable domain-wide delegation** for your service account in Google Cloud Console
+2. **Authorize the service account** in Google Workspace Admin Console with scope: `https://www.googleapis.com/auth/drive.file`
+3. **Update configuration**:
+   ```properties
+   google.drive.impersonation.enabled=true
+   google.drive.impersonation.domain=your-company.com
+   google.drive.impersonation.default-user=admin@your-company.com
+   ```
+
+### 🚀 **Usage**
+```bash
+# Upload to specific user's Google Drive
+curl -X POST "http://localhost:8080/api/upload-photo" \
+  -F "file=@photo.jpg" \
+  -F "userName=John" \
+  -F "userEmail=john.doe@your-company.com"
+```
+
+### 📁 **Result**
+Photos are uploaded to the target user's personal Google Drive:
+```
+John's Google Drive/
+├── John-fotos/
+│   ├── John-camera-photo-2025-07-11_14-30-45.jpg
+│   └── John-camera-photo-2025-07-11_14-35-22.jpg
+```
+
+### 📖 **Detailed Setup Guide**
+See [USER_IMPERSONATION_SETUP.md](USER_IMPERSONATION_SETUP.md) for complete configuration instructions, troubleshooting, and security considerations.
 
 ### Maven Dependencies
 
@@ -309,14 +354,16 @@ The project includes the following main dependencies:
 - **POST** `/api/upload-photo`
 - **Parameters**: 
   - `file` (MultipartFile) - Required image file
-  - `userName` (String) - User name (optional)
+  - `userName` (String) - User name for folder organization (optional)
+  - `userEmail` (String) - Target user's email for impersonation (optional)
 - **Response**: JSON with uploaded file ID and user information
 - **Example response**:
   ```json
   {
     "message": "Photo uploaded successfully to Google Drive",
     "fileId": "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms",
-    "uploadedFor": "Juan"
+    "uploadedFor": "Juan",
+    "uploadedToAccount": "juan.doe@company.com"
   }
   ```
 
@@ -329,6 +376,19 @@ The project includes the following main dependencies:
     "configured": true,
     "folderId": "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms",
     "service": "Google Drive"
+  }
+  ```
+
+### User Impersonation Status
+- **GET** `/api/impersonation-status`
+- **Response**: JSON with impersonation configuration
+- **Example response**:
+  ```json
+  {
+    "impersonationEnabled": true,
+    "domain": "company.com",
+    "defaultUser": "admin@company.com",
+    "configured": true
   }
   ```
 

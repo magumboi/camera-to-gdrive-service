@@ -19,7 +19,8 @@ public class PhotoUploadController {
     @PostMapping("/upload-photo")
     public ResponseEntity<Map<String, String>> uploadPhoto(
             @RequestParam(value = "file", required = false) MultipartFile file,
-            @RequestParam(value = "userName", required = false) String userName) {
+            @RequestParam(value = "userName", required = false) String userName,
+            @RequestParam(value = "userEmail", required = false) String userEmail) {
         // Validate file
         if (file == null || file.isEmpty()) {
             Map<String, String> response = new HashMap<>();
@@ -37,7 +38,7 @@ public class PhotoUploadController {
 
         // Upload to Google Drive (blocking call)
         try {
-            String fileId = googleDriveService.uploadPhotoToGoogleDrive(file, userName).block();
+            String fileId = googleDriveService.uploadPhotoToGoogleDrive(file, userName, userEmail).block();
             Map<String, String> response = new HashMap<>();
             response.put("message", "Photo uploaded successfully to Google Drive");
             response.put("fileId", fileId);
@@ -45,6 +46,11 @@ public class PhotoUploadController {
             // Log the upload with user information
             if (userName != null && !userName.trim().isEmpty()) {
                 response.put("uploadedFor", userName.trim());
+            }
+            
+            // Log the target user email if provided
+            if (userEmail != null && !userEmail.trim().isEmpty()) {
+                response.put("uploadedToAccount", userEmail.trim());
             }
             
             return ResponseEntity.ok(response);
@@ -69,6 +75,17 @@ public class PhotoUploadController {
         status.put("configured", googleDriveService.isConfigured());
         status.put("folderId", googleDriveService.getFolderId());
         status.put("service", "Google Drive");
+        
+        return ResponseEntity.ok(status);
+    }
+
+    @GetMapping("/impersonation-status")
+    public ResponseEntity<Map<String, Object>> getImpersonationStatus() {
+        Map<String, Object> status = new HashMap<>();
+        status.put("impersonationEnabled", googleDriveService.isImpersonationEnabled());
+        status.put("domain", googleDriveService.getImpersonationDomain());
+        status.put("defaultUser", googleDriveService.getDefaultUserEmail());
+        status.put("configured", googleDriveService.isConfigured());
         
         return ResponseEntity.ok(status);
     }
